@@ -2,6 +2,7 @@ const WEBHOOK = process.env.FEISHU_WEBHOOK_URL
 const DRY_RUN = process.env.DRY_RUN === '1' || process.argv.includes('--dry-run')
 const TOP_N = Number(process.env.TOP_N || 10)
 const LANGUAGE = (process.env.LANGUAGE || '').trim()
+const TRANSLATE = process.env.TRANSLATE !== '0' // 默认开启；TRANSLATE=0 可关闭
 const TRENDING_URL = LANGUAGE
   ? `https://github.com/trending/${encodeURIComponent(LANGUAGE)}?since=weekly`
   : 'https://github.com/trending?since=weekly'
@@ -23,6 +24,47 @@ function decodeHtml(text) {
 
 function stripTags(html) {
   return decodeHtml(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+}
+
+function hasChinese(text) {
+  return /[\u4e00-\u9fff]/.test(text)
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/** 免费翻译（MyMemory），失败时回退原文 */
+async function translateToZh(text) {
+  const source = (text || '').trim()
+  if (!source) return ''
+  if (hasChinese(source)) return source
+
+  const url =
+    'https://api.mymemory.translated.net/get?' +
+    new URLSearchParams({
+      q: source.slice(0, 450), // 接口有长度限制
+      langpair: 'en|zh-CN',
+    })
+
+  try {
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'github-weekly-trending/1.0' },
+    })
+    if (!res.ok) return source
+    const data = await res.json()
+    const translated = data?.responseData?.translatedText?.trim()
+    if (!translated || /MYMEMORY WARNING/i.test(translated)) return source
+    return translated
+  } catch {
+    return source
+  }
+}
+
+function formatStarsZh(starsThisWeek) {
+  const match = (starsThisWeek || '').match(/([\d,]+)/)
+  if (!match) return '本周涨星：暂无'
+  return `本周新增 ${match[1]} ⭐`
 }
 
 function parseTrending(html) {
@@ -51,7 +93,7 @@ function parseTrending(html) {
     const langMatch = article.match(
       /itemprop="programmingLanguage"[^>]*>([^<]+)</
     )
-    const language = langMatch ? stripTags(langMatch[1]) : 'N/A'
+    const language = langMatch ? stripTags(langMatch[1]) : '未知'
 
     const starsMatch = article.match(
       /float-sm-right[\s\S]*?<\/svg>([\s\S]*?)(?:<\/span>|<\/div>)/
@@ -95,12 +137,26 @@ async function fetchTrending() {
   return list
 }
 
+async function enrichWithTranslation(list) {
+  if (!TRANSLATE) return list
+
+  const result = []
+  for (const item of list) {
+    const descZh = item.desc ? await translateToZh(item.desc) : ''
+    result.push({ ...item, descZh })
+    // 轻微免费接口限流
+    await sleep(200)
+  }
+  return result
+}
+
 function formatText(list) {
   const titleLang = LANGUAGE ? ` / ${LANGUAGE}` : ''
   const lines = list.map((item, i) => {
-    const stars = item.starsThisWeek || 'stars this week: N/A'
-    const desc = item.desc ? `\n   ${item.desc}` : ''
-    return `${i + 1}. ${item.fullName}  [${item.language}]\n   ${stars}\n   ${item.url}${desc}`
+    const stars = formatStarsZh(item.starsThisWeek)
+    const descZh = (item.descZh || item.desc || '').trim()
+    const descLine = descZh ? `\n   ${descZh}` : ''
+    return `${i + 1}. ${item.fullName}  [${item.language}]\n   ${stars}\n   ${item.url}${descLine}`
   })
   return `🚀 GitHub 本周冲榜 Top ${list.length}${titleLang}\n\n${lines.join('\n\n')}`
 }
@@ -121,7 +177,7 @@ async function sendFeishu(text) {
   }
 }
 
-const list = await fetchTrending()
+const list = await enrichWithTranslation(await fetchTrending())
 const text = formatText(list)
 
 if (DRY_RUN) {

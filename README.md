@@ -44,4 +44,5 @@ npm run notify
 | `FEISHU_WEBHOOK_URL` | 飞书 Webhook | 必填（dry-run 除外） |
 | `TOP_N` | 推送条数 | `10` |
 | `LANGUAGE` | 语言过滤，如 `typescript` | 空（全部） |
+| `TRANSLATE` | 设为 `0` 关闭简介中文翻译 | 默认开启 |
 | `DRY_RUN` | `1` 时只打印不发送 | 关闭 |
