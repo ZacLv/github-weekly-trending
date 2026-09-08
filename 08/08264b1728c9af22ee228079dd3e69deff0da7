@@ -1,0 +1,24 @@
+README.md
+  s_e2e4544beb2ce8::t_2be5cfe67f7a99 7,9,15
+  s_e2e4544beb2ce8::t_f8ec4b432fbdb6 27,34
+scripts/fetch-and-notify.js
+  s_e2e4544beb2ce8::t_ed04076767acdb 4,14-22,24-26,28-29,32-43,51-64,72-84,87-91
+  s_e2e4544beb2ce8::t_ac5a2bffde2872 44
+  s_e2e4544beb2ce8::t_f4bdf5aae168e6 45-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.43-trip",
+  "base_commit_sha": "0808264b1728c9af22ee228079dd3e69deff0da7",
+  "prompts": {},
+  "sessions": {
+    "s_e2e4544beb2ce8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d9443435-ee5c-4352-b107-56d8cb72b3d4",
+        "model": "default"
+      },
+      "human_author": "lvzz <lvzz@trip.com>"
+    }
+  }
+}
