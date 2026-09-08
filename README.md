@@ -35,7 +35,7 @@ npm run notify
 
 仓库 → **Actions** → **Weekly GitHub Trending** → **Run workflow**
 
-定时：每周一北京时间约 09:00 自动执行。
+定时：每周一北京时间约 10:30 自动执行。
 
 ## 可选环境变量
 
