@@ -4,19 +4,15 @@
 
 ## 快速开始
 
-### 1. 安装依赖
+### 1. 本地验证抓取（不发飞书）
 
-```bash
-npm install
-```
-
-### 2. 本地验证抓取（不发飞书）
+本项目零依赖，只需 Node.js 20+：
 
 ```bash
 npm run dry-run
 ```
 
-### 3. 配置飞书 Webhook
+### 2. 配置飞书 Webhook
 
 1. 飞书群 → 设置 → 群机器人 → 添加「自定义机器人」
 2. 复制 Webhook 地址
@@ -28,14 +24,14 @@ export FEISHU_WEBHOOK_URL='https://open.feishu.cn/open-apis/bot/v2/hook/xxxx'
 npm run notify
 ```
 
-### 4. 配置 GitHub Actions Secret
+### 3. 配置 GitHub Actions Secret
 
 仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
 - Name: `FEISHU_WEBHOOK_URL`
 - Value: 飞书 Webhook 完整地址
 
-### 5. 手动跑一次 Actions
+### 4. 手动跑一次 Actions
 
 仓库 → **Actions** → **Weekly GitHub Trending** → **Run workflow**
 

@@ -1,9 +1,7 @@
-import * as cheerio from 'cheerio'
-
 const WEBHOOK = process.env.FEISHU_WEBHOOK_URL
 const DRY_RUN = process.env.DRY_RUN === '1' || process.argv.includes('--dry-run')
 const TOP_N = Number(process.env.TOP_N || 10)
-const LANGUAGE = (process.env.LANGUAGE || '').trim() // 例如 typescript；空表示全部
+const LANGUAGE = (process.env.LANGUAGE || '').trim()
 const TRENDING_URL = LANGUAGE
   ? `https://github.com/trending/${encodeURIComponent(LANGUAGE)}?since=weekly`
   : 'https://github.com/trending?since=weekly'
@@ -11,6 +9,69 @@ const TRENDING_URL = LANGUAGE
 if (!DRY_RUN && !WEBHOOK) {
   console.error('缺少 FEISHU_WEBHOOK_URL（本地可先 npm run dry-run 验证抓取）')
   process.exit(1)
+}
+
+function decodeHtml(text) {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+}
+
+function stripTags(html) {
+  return decodeHtml(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim()
+}
+
+function parseTrending(html) {
+  const articles = html.match(/<article class="Box-row"[\s\S]*?<\/article>/g) || []
+  const list = []
+
+  for (const article of articles) {
+    if (list.length >= TOP_N) break
+
+    const hrefMatch = article.match(
+      /<h2[^>]*>[\s\S]*?<a[^>]*href="(\/[^"]+)"[^>]*>/
+    )
+    if (!hrefMatch) continue
+
+    const href = hrefMatch[1].trim()
+    const fullName = href.replace(/^\//, '')
+    if (!fullName || !fullName.includes('/')) continue
+
+    const descMatch = article.match(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/)
+    let desc = descMatch ? stripTags(descMatch[1]) : ''
+    desc = desc
+      .replace(/^Sponsor\s+/i, '')
+      .replace(/^Star\s+[\w.-]+\s*\/\s*[\w.-]+\s+/i, '')
+      .trim()
+
+    const langMatch = article.match(
+      /itemprop="programmingLanguage"[^>]*>([^<]+)</
+    )
+    const language = langMatch ? stripTags(langMatch[1]) : 'N/A'
+
+    const starsMatch = article.match(
+      /float-sm-right[\s\S]*?<\/svg>([\s\S]*?)(?:<\/span>|<\/div>)/
+    )
+    let starsThisWeek = starsMatch ? stripTags(starsMatch[1]) : ''
+    if (!starsThisWeek.includes('star')) {
+      const fallback = article.match(/([\d,]+)\s+stars this week/i)
+      starsThisWeek = fallback ? fallback[0] : ''
+    }
+
+    list.push({
+      fullName,
+      url: `https://github.com/${fullName}`,
+      desc,
+      language,
+      starsThisWeek,
+    })
+  }
+
+  return list
 }
 
 async function fetchTrending() {
@@ -27,42 +88,10 @@ async function fetchTrending() {
     throw new Error(`抓取失败: HTTP ${res.status}`)
   }
 
-  const html = await res.text()
-  const $ = cheerio.load(html)
-  const list = []
-
-  $('article.Box-row').each((_, el) => {
-    if (list.length >= TOP_N) return false
-
-    const $el = $(el)
-    const $link = $el.find('h2 a').first()
-    const href = ($link.attr('href') || '').trim()
-    const fullName = href.replace(/^\//, '') || $link.text().replace(/\s+/g, '')
-    if (!fullName) return
-
-    const desc = $el.find('p').first().text().replace(/\s+/g, ' ').trim()
-    const language =
-      $el.find('[itemprop="programmingLanguage"]').first().text().trim() || 'N/A'
-    const starsThisWeek = $el
-      .find('.float-sm-right')
-      .first()
-      .text()
-      .replace(/\s+/g, ' ')
-      .trim()
-
-    list.push({
-      fullName,
-      url: `https://github.com/${fullName}`,
-      desc,
-      language,
-      starsThisWeek,
-    })
-  })
-
+  const list = parseTrending(await res.text())
   if (!list.length) {
     throw new Error('未解析到榜单，GitHub 页面结构可能已变化')
   }
-
   return list
 }
 
@@ -73,7 +102,6 @@ function formatText(list) {
     const desc = item.desc ? `\n   ${item.desc}` : ''
     return `${i + 1}. ${item.fullName}  [${item.language}]\n   ${stars}\n   ${item.url}${desc}`
   })
-
   return `🚀 GitHub 本周冲榜 Top ${list.length}${titleLang}\n\n${lines.join('\n\n')}`
 }
 
@@ -88,7 +116,6 @@ async function sendFeishu(text) {
   })
 
   const data = await res.json().catch(() => ({}))
-  // 飞书成功一般是 { code: 0, msg: "success" }
   if (!res.ok || (typeof data.code === 'number' && data.code !== 0)) {
     throw new Error(`飞书发送失败: HTTP ${res.status} ${JSON.stringify(data)}`)
   }
