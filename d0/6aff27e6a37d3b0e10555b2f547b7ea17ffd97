@@ -1,0 +1,29 @@
+scripts/fetch-and-notify.js
+  s_e2e4544beb2ce8::t_113bfcdcb15617 1-106
+.gitignore
+  s_e2e4544beb2ce8::t_1f738192205c14 1-6
+README.md
+  s_e2e4544beb2ce8::t_85ba8f17d07a2b 1-51
+.env.example
+  s_e2e4544beb2ce8::t_591fa060419670 1-2
+package.json
+  s_e2e4544beb2ce8::t_3006ae67bd43df 1-17
+.github/workflows/weekly.yml
+  s_e2e4544beb2ce8::t_ac95477dacd664 1-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.43-trip",
+  "base_commit_sha": "d06aff27e6a37d3b0e10555b2f547b7ea17ffd97",
+  "prompts": {},
+  "sessions": {
+    "s_e2e4544beb2ce8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d9443435-ee5c-4352-b107-56d8cb72b3d4",
+        "model": "default"
+      },
+      "human_author": "lvzz <lvzz@trip.com>"
+    }
+  }
+}
