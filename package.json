@@ -1,0 +1,17 @@
+{
+  "name": "github-weekly-trending",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "每周抓取 GitHub Trending 并推送到飞书",
+  "scripts": {
+    "notify": "node scripts/fetch-and-notify.js",
+    "dry-run": "DRY_RUN=1 node scripts/fetch-and-notify.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

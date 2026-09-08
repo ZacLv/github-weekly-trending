@@ -1,0 +1,29 @@
+name: Weekly GitHub Trending
+
+on:
+  schedule:
+    # 每周一 09:00（北京时间）= UTC 01:00
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch trending and notify Feishu
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          TOP_N: '10'
+          # 需要按语言过滤时取消注释，例如 typescript
+          # LANGUAGE: typescript
+        run: npm run notify
