@@ -26,7 +26,7 @@ npm run dry-run
 | `FEISHU_WEBHOOK_URL` | 飞书 Webhook | 必填 |
 | `LLM_API_KEY` | OpenAI 兼容 API Key | 无则跳过分析 |
 | `LLM_BASE_URL` | API 地址 | Gemini 免费 |
-| `LLM_MODEL` | 模型名 | `gemini-2.5-flash` |
+| `LLM_MODEL` | 模型名 | `gemini-3.6-flash` |
 | `ANALYZE` | `0` 关闭分析 | 有 Key 则开启 |
 | `TOP_N` | 条数 | `10` |
 | `LANGUAGE` | 语言过滤 | 空 |

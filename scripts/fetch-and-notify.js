@@ -9,7 +9,7 @@ const LLM_BASE_URL = (
   process.env.LLM_BASE_URL ||
   'https://generativelanguage.googleapis.com/v1beta/openai'
 ).replace(/\/$/, '')
-const LLM_MODEL = process.env.LLM_MODEL || 'gemini-2.5-flash'
+const LLM_MODEL = process.env.LLM_MODEL || 'gemini-3.6-flash'
 // 有 API Key 时默认开启分析；ANALYZE=0 可关闭
 const ANALYZE = process.env.ANALYZE === '1' || (process.env.ANALYZE !== '0' && !!LLM_API_KEY)
 

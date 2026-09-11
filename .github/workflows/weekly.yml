@@ -22,6 +22,6 @@ jobs:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           # 默认免费 Gemini（OpenAI 兼容接口）
           LLM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
-          LLM_MODEL: gemini-2.5-flash
+          LLM_MODEL: gemini-3.6-flash
           TOP_N: '10'
         run: npm run notify
