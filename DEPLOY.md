@@ -34,17 +34,19 @@ curl -X POST '你的Webhook' \
 
 仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-**推荐免费：[Groq](https://console.groq.com/)**
+**推荐免费：[Google AI Studio / Gemini](https://aistudio.google.com/apikey)**
 
 | Name | Value |
 |------|--------|
 | `FEISHU_WEBHOOK_URL` | 飞书 Webhook |
-| `LLM_API_KEY` | Groq 的 API Key（`gsk_...`） |
+| `LLM_API_KEY` | Gemini API Key |
 
-代码里已写死 Groq 地址和模型，**不用再配 Variables**。  
-若以前加过 OpenAI 的 `LLM_BASE_URL` / `LLM_MODEL`，可删掉，避免混淆。
+代码已默认 Gemini，**不用配 Variables**。  
+以前配的 OpenAI / Groq Variables 可删掉。
 
 不配 `LLM_API_KEY` 也能发榜，但没有优缺点分析。
+
+若 Gemini 也申请不了，可改用 [硅基流动](https://cloud.siliconflow.cn/)（国内好注册），需改 workflow 里的 `LLM_BASE_URL` / `LLM_MODEL`。
 
 ---
 

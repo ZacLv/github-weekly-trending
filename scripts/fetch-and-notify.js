@@ -4,11 +4,12 @@ const TOP_N = Number(process.env.TOP_N || 10)
 const LANGUAGE = (process.env.LANGUAGE || '').trim()
 const TRANSLATE = process.env.TRANSLATE !== '0'
 const LLM_API_KEY = (process.env.LLM_API_KEY || '').trim()
-// 默认用 Groq 免费额度（OpenAI 兼容）；也可换成 DeepSeek / 硅基流动等
+// 默认免费 Gemini（OpenAI 兼容）；也可换硅基流动等
 const LLM_BASE_URL = (
-  process.env.LLM_BASE_URL || 'https://api.groq.com/openai/v1'
+  process.env.LLM_BASE_URL ||
+  'https://generativelanguage.googleapis.com/v1beta/openai'
 ).replace(/\/$/, '')
-const LLM_MODEL = process.env.LLM_MODEL || 'llama-3.3-70b-versatile'
+const LLM_MODEL = process.env.LLM_MODEL || 'gemini-2.5-flash'
 // 有 API Key 时默认开启分析；ANALYZE=0 可关闭
 const ANALYZE = process.env.ANALYZE === '1' || (process.env.ANALYZE !== '0' && !!LLM_API_KEY)
 
