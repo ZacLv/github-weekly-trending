@@ -1,0 +1,27 @@
+README.md
+  s_e2e4544beb2ce8::t_0bc1547b6bc5a0 18,28-29
+scripts/fetch-and-notify.js
+  s_e2e4544beb2ce8::t_95d73ed9b69656 7,9-10,12
+.env.example
+  s_e2e4544beb2ce8::t_36f01a71ac5895 4-8,10-14
+.github/workflows/weekly.yml
+  s_e2e4544beb2ce8::t_cd85e810102da6 23-25
+DEPLOY.md
+  s_e2e4544beb2ce8::t_1e5416ea999b1a 37,42,44-45,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.44-trip",
+  "base_commit_sha": "99692fa80a4c11525e01d1f768af229482e72a5c",
+  "prompts": {},
+  "sessions": {
+    "s_e2e4544beb2ce8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d9443435-ee5c-4352-b107-56d8cb72b3d4",
+        "model": "default"
+      },
+      "human_author": "lvzz <lvzz@trip.com>"
+    }
+  }
+}
