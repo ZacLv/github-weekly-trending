@@ -1,0 +1,21 @@
+.github/workflows/weekly.yml
+  s_e2e4544beb2ce8::t_8e4b1af404ca08 23-25
+DEPLOY.md
+  s_e2e4544beb2ce8::t_7a4f0ab04fb1fa 37-38,42,44-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.44-trip",
+  "base_commit_sha": "8b0e01d0a7573925e9438b52e0d1dc5c1c9e2b1a",
+  "prompts": {},
+  "sessions": {
+    "s_e2e4544beb2ce8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d9443435-ee5c-4352-b107-56d8cb72b3d4",
+        "model": "default"
+      },
+      "human_author": "lvzz <lvzz@trip.com>"
+    }
+  }
+}
