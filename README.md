@@ -1,48 +1,34 @@
 # github-weekly-trending
 
-每周一自动抓取 [GitHub Trending（周榜）](https://github.com/trending?since=weekly)，通过飞书自定义机器人推送到群聊。
+每周一自动抓取 [GitHub Trending（周榜）](https://github.com/trending?since=weekly)，推送到飞书（含 AI 场景/优缺点简评）。
+
+**部署教程：** [DEPLOY.md](./DEPLOY.md)
 
 ## 快速开始
-
-### 1. 本地验证抓取（不发飞书）
-
-本项目零依赖，只需 Node.js 20+：
 
 ```bash
 npm run dry-run
 ```
 
-### 2. 配置飞书 Webhook
+配置 Secret 后，Actions 里 **Run workflow** 验证。
 
-1. 飞书群 → 设置 → 群机器人 → 添加「自定义机器人」
-2. 复制 Webhook 地址
+必配 Secret：
 
-本地推送测试：
+- `FEISHU_WEBHOOK_URL` — 飞书 Webhook
+- `LLM_API_KEY` — 大模型 Key（可选，但没有则无优缺点分析）
 
-```bash
-export FEISHU_WEBHOOK_URL='https://open.feishu.cn/open-apis/bot/v2/hook/xxxx'
-npm run notify
-```
+定时：每周一北京时间约 10:30。
 
-### 3. 配置 GitHub Actions Secret
-
-仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
-- Name: `FEISHU_WEBHOOK_URL`
-- Value: 飞书 Webhook 完整地址
-
-### 4. 手动跑一次 Actions
-
-仓库 → **Actions** → **Weekly GitHub Trending** → **Run workflow**
-
-定时：每周一北京时间约 10:30 自动执行。
-
-## 可选环境变量
+## 环境变量
 
 | 变量 | 说明 | 默认 |
 |------|------|------|
-| `FEISHU_WEBHOOK_URL` | 飞书 Webhook | 必填（dry-run 除外） |
-| `TOP_N` | 推送条数 | `10` |
-| `LANGUAGE` | 语言过滤，如 `typescript` | 空（全部） |
-| `TRANSLATE` | 设为 `0` 关闭简介中文翻译 | 默认开启 |
-| `DRY_RUN` | `1` 时只打印不发送 | 关闭 |
+| `FEISHU_WEBHOOK_URL` | 飞书 Webhook | 必填 |
+| `LLM_API_KEY` | OpenAI 兼容 API Key | 无则跳过分析 |
+| `LLM_BASE_URL` | API 地址 | DeepSeek |
+| `LLM_MODEL` | 模型名 | `deepseek-chat` |
+| `ANALYZE` | `0` 关闭分析 | 有 Key 则开启 |
+| `TOP_N` | 条数 | `10` |
+| `LANGUAGE` | 语言过滤 | 空 |
+| `TRANSLATE` | `0` 关闭免费翻译兜底 | 开 |
+| `DRY_RUN` | `1` 只打印 | 关 |

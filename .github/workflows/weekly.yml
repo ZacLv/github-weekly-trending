@@ -19,7 +19,9 @@ jobs:
       - name: Fetch trending and notify Feishu
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          # 可选：在仓库 Variables 里覆盖，不配则用脚本默认 DeepSeek
+          LLM_BASE_URL: ${{ vars.LLM_BASE_URL }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
           TOP_N: '10'
-          # 需要按语言过滤时取消注释，例如 typescript
-          # LANGUAGE: typescript
         run: npm run notify
