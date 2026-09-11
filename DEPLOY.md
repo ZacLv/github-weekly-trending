@@ -34,19 +34,15 @@ curl -X POST '你的Webhook' \
 
 仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
+**推荐免费：[Groq](https://console.groq.com/)**
+
 | Name | Value |
 |------|--------|
 | `FEISHU_WEBHOOK_URL` | 飞书 Webhook |
-| `LLM_API_KEY` | 大模型 API Key（用于场景/优缺点分析） |
+| `LLM_API_KEY` | Groq 的 API Key（`gsk_...`） |
 
-**推荐免费：[Groq](https://console.groq.com/)**（注册领免费额度，OpenAI 兼容）。
-
-再在仓库 **Settings → Secrets and variables → Actions → Variables** 配（也可不配，代码默认已是 Groq）：
-
-| Name | 值 |
-|------|-----|
-| `LLM_BASE_URL` | `https://api.groq.com/openai/v1` |
-| `LLM_MODEL` | `llama-3.3-70b-versatile` |
+代码里已写死 Groq 地址和模型，**不用再配 Variables**。  
+若以前加过 OpenAI 的 `LLM_BASE_URL` / `LLM_MODEL`，可删掉，避免混淆。
 
 不配 `LLM_API_KEY` 也能发榜，但没有优缺点分析。
 
