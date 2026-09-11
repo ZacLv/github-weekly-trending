@@ -1,0 +1,27 @@
+scripts/fetch-and-notify.js
+  s_e2e4544beb2ce8::t_221d56bcc1057f 243-248,251-272
+  s_e2e4544beb2ce8::t_4179778c5fab24 7-11
+README.md
+  s_e2e4544beb2ce8::t_94b8d117ccd87d 18,28-29
+.env.example
+  s_e2e4544beb2ce8::t_e8e6f0dad23c01 4-12
+DEPLOY.md
+  s_e2e4544beb2ce8::t_d7302b5bf628d2 42,44,46-51
+  s_e2e4544beb2ce8::t_250635b2dcd6de 86-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.44-trip",
+  "base_commit_sha": "67203f76321b1f7c051819f110f0e667ca449eb1",
+  "prompts": {},
+  "sessions": {
+    "s_e2e4544beb2ce8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d9443435-ee5c-4352-b107-56d8cb72b3d4",
+        "model": "default"
+      },
+      "human_author": "lvzz <lvzz@trip.com>"
+    }
+  }
+}
