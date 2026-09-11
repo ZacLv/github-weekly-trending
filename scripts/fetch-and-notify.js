@@ -10,6 +10,7 @@ const LLM_BASE_URL = (
   'https://generativelanguage.googleapis.com/v1beta/openai'
 ).replace(/\/$/, '')
 const LLM_MODEL = process.env.LLM_MODEL || 'gemini-3.6-flash'
+const LLM_RETRY = Math.max(1, Number(process.env.LLM_RETRY || 5))
 // 有 API Key 时默认开启分析；ANALYZE=0 可关闭
 const ANALYZE = process.env.ANALYZE === '1' || (process.env.ANALYZE !== '0' && !!LLM_API_KEY)
 
@@ -193,6 +194,26 @@ function extractJson(text) {
   return JSON.parse(candidate.slice(start, end + 1))
 }
 
+async function callChatCompletions(model, system, user) {
+  const res = await fetch(`${LLM_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${LLM_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+    }),
+  })
+  const data = await res.json().catch(() => ({}))
+  return { res, data }
+}
+
 async function analyzeWithLlm(list) {
   if (!ANALYZE) {
     console.log('[analyze] 已跳过（未开启或缺少 LLM_API_KEY）')
@@ -223,54 +244,57 @@ async function analyzeWithLlm(list) {
 
   const user = `请分析以下 GitHub 周榜项目：\n${JSON.stringify(payload)}`
 
-  const res = await fetch(`${LLM_BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${LLM_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: LLM_MODEL,
-      temperature: 0.3,
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-    }),
-  })
+  for (let attempt = 1; attempt <= LLM_RETRY; attempt++) {
+    console.log(`[analyze] 调用 ${LLM_MODEL}（第 ${attempt}/${LLM_RETRY} 次）`)
+    const { res, data } = await callChatCompletions(LLM_MODEL, system, user)
 
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) {
+    if (res.ok) {
+      try {
+        const content = data?.choices?.[0]?.message?.content || ''
+        const analyzed = extractJson(content)
+        const byName = new Map(
+          analyzed.map((row) => [String(row.fullName || '').toLowerCase(), row])
+        )
+
+        console.log(`[analyze] 成功：${LLM_MODEL}`)
+        return list.map((item) => {
+          const row = byName.get(item.fullName.toLowerCase())
+          if (!row) return item
+          return {
+            ...item,
+            summary: String(row.summary || '').trim(),
+            scene: String(row.scene || '').trim(),
+            pros: String(row.pros || '').trim(),
+            cons: String(row.cons || '').trim(),
+          }
+        })
+      } catch (err) {
+        console.warn(`[analyze] 解析失败: ${err.message}`)
+        if (attempt < LLM_RETRY) {
+          const waitMs = attempt * 4000
+          console.warn(`[analyze] ${waitMs / 1000}s 后重试同一模型…`)
+          await sleep(waitMs)
+          continue
+        }
+        break
+      }
+    }
+
     const detail = JSON.stringify(data).slice(0, 500)
     console.warn(`[analyze] LLM 调用失败 HTTP ${res.status}: ${detail}`)
-    if (res.status === 402 || /Insufficient Balance/i.test(detail)) {
-      console.warn('[analyze] 余额不足，本次跳过分析（榜单仍会推送）')
+
+    if (attempt < LLM_RETRY) {
+      const waitMs = attempt * 4000
+      console.warn(`[analyze] ${waitMs / 1000}s 后重试同一模型…`)
+      await sleep(waitMs)
+      continue
     }
-    return list
   }
 
-  try {
-    const content = data?.choices?.[0]?.message?.content || ''
-    const analyzed = extractJson(content)
-    const byName = new Map(
-      analyzed.map((row) => [String(row.fullName || '').toLowerCase(), row])
-    )
-
-    return list.map((item) => {
-      const row = byName.get(item.fullName.toLowerCase())
-      if (!row) return item
-      return {
-        ...item,
-        summary: String(row.summary || '').trim(),
-        scene: String(row.scene || '').trim(),
-        pros: String(row.pros || '').trim(),
-        cons: String(row.cons || '').trim(),
-      }
-    })
-  } catch (err) {
-    console.warn(`[analyze] 解析模型结果失败，跳过分析: ${err.message}`)
-    return list
-  }
+  console.warn(
+    `[analyze] ${LLM_MODEL} 重试 ${LLM_RETRY} 次仍失败，本次跳过分析（榜单仍会推送）`
+  )
+  return list
 }
 
 async function enrichWithTranslation(list) {

@@ -27,6 +27,7 @@ npm run dry-run
 | `LLM_API_KEY` | OpenAI 兼容 API Key | 无则跳过分析 |
 | `LLM_BASE_URL` | API 地址 | Gemini 免费 |
 | `LLM_MODEL` | 模型名 | `gemini-3.6-flash` |
+| `LLM_RETRY` | 失败重试次数（不换模型） | `5` |
 | `ANALYZE` | `0` 关闭分析 | 有 Key 则开启 |
 | `TOP_N` | 条数 | `10` |
 | `LANGUAGE` | 语言过滤 | 空 |

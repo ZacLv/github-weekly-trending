@@ -20,8 +20,9 @@ jobs:
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          # 默认免费 Gemini（OpenAI 兼容接口）
+          # 默认免费 Gemini；失败只重试同一模型，不切换
           LLM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
           LLM_MODEL: gemini-3.6-flash
+          LLM_RETRY: '5'
           TOP_N: '10'
         run: npm run notify
