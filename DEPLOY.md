@@ -39,14 +39,16 @@ curl -X POST '你的Webhook' \
 | `FEISHU_WEBHOOK_URL` | 飞书 Webhook |
 | `LLM_API_KEY` | 大模型 API Key（用于场景/优缺点分析） |
 
-`LLM_API_KEY` 推荐用 [DeepSeek](https://platform.deepseek.com/)（便宜、OpenAI 兼容）。不配也能发榜，但没有优缺点分析。
+**推荐免费：[Groq](https://console.groq.com/)**（注册领免费额度，OpenAI 兼容）。
 
-可选 Variables（不配则用默认）：
+再在仓库 **Settings → Secrets and variables → Actions → Variables** 配（也可不配，代码默认已是 Groq）：
 
-| Name | 默认 |
-|------|------|
-| `LLM_BASE_URL` | `https://api.deepseek.com/v1` |
-| `LLM_MODEL` | `deepseek-chat` |
+| Name | 值 |
+|------|-----|
+| `LLM_BASE_URL` | `https://api.groq.com/openai/v1` |
+| `LLM_MODEL` | `llama-3.3-70b-versatile` |
+
+不配 `LLM_API_KEY` 也能发榜，但没有优缺点分析。
 
 ---
 
@@ -81,8 +83,8 @@ npm run notify    # 真发飞书
 
 ## 常见问题
 
-**没有优缺点？**  
-检查是否配置了 `LLM_API_KEY`；或是否设了 `ANALYZE=0`。
+**没有优缺点 / 报余额不足？**  
+换免费 [Groq](https://console.groq.com/) Key；或充值 DeepSeek。分析失败时榜单仍会推送（需已 push 最新代码）。
 
 **周一没收到？**  
 定时可能晚几分钟；确认 workflow 未被 Disable。

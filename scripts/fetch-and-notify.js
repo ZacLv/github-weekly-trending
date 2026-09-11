@@ -4,11 +4,11 @@ const TOP_N = Number(process.env.TOP_N || 10)
 const LANGUAGE = (process.env.LANGUAGE || '').trim()
 const TRANSLATE = process.env.TRANSLATE !== '0'
 const LLM_API_KEY = (process.env.LLM_API_KEY || '').trim()
-const LLM_BASE_URL = (process.env.LLM_BASE_URL || 'https://api.deepseek.com/v1').replace(
-  /\/$/,
-  ''
-)
-const LLM_MODEL = process.env.LLM_MODEL || 'deepseek-chat'
+// 默认用 Groq 免费额度（OpenAI 兼容）；也可换成 DeepSeek / 硅基流动等
+const LLM_BASE_URL = (
+  process.env.LLM_BASE_URL || 'https://api.groq.com/openai/v1'
+).replace(/\/$/, '')
+const LLM_MODEL = process.env.LLM_MODEL || 'llama-3.3-70b-versatile'
 // 有 API Key 时默认开启分析；ANALYZE=0 可关闭
 const ANALYZE = process.env.ANALYZE === '1' || (process.env.ANALYZE !== '0' && !!LLM_API_KEY)
 
@@ -240,28 +240,36 @@ async function analyzeWithLlm(list) {
 
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    throw new Error(
-      `LLM 调用失败: HTTP ${res.status} ${JSON.stringify(data).slice(0, 500)}`
-    )
+    const detail = JSON.stringify(data).slice(0, 500)
+    console.warn(`[analyze] LLM 调用失败 HTTP ${res.status}: ${detail}`)
+    if (res.status === 402 || /Insufficient Balance/i.test(detail)) {
+      console.warn('[analyze] 余额不足，本次跳过分析（榜单仍会推送）')
+    }
+    return list
   }
 
-  const content = data?.choices?.[0]?.message?.content || ''
-  const analyzed = extractJson(content)
-  const byName = new Map(
-    analyzed.map((row) => [String(row.fullName || '').toLowerCase(), row])
-  )
+  try {
+    const content = data?.choices?.[0]?.message?.content || ''
+    const analyzed = extractJson(content)
+    const byName = new Map(
+      analyzed.map((row) => [String(row.fullName || '').toLowerCase(), row])
+    )
 
-  return list.map((item) => {
-    const row = byName.get(item.fullName.toLowerCase())
-    if (!row) return item
-    return {
-      ...item,
-      summary: String(row.summary || '').trim(),
-      scene: String(row.scene || '').trim(),
-      pros: String(row.pros || '').trim(),
-      cons: String(row.cons || '').trim(),
-    }
-  })
+    return list.map((item) => {
+      const row = byName.get(item.fullName.toLowerCase())
+      if (!row) return item
+      return {
+        ...item,
+        summary: String(row.summary || '').trim(),
+        scene: String(row.scene || '').trim(),
+        pros: String(row.pros || '').trim(),
+        cons: String(row.cons || '').trim(),
+      }
+    })
+  } catch (err) {
+    console.warn(`[analyze] 解析模型结果失败，跳过分析: ${err.message}`)
+    return list
+  }
 }
 
 async function enrichWithTranslation(list) {

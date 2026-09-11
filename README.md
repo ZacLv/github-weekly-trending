@@ -15,7 +15,7 @@ npm run dry-run
 必配 Secret：
 
 - `FEISHU_WEBHOOK_URL` — 飞书 Webhook
-- `LLM_API_KEY` — 大模型 Key（可选，但没有则无优缺点分析）
+- `LLM_API_KEY` — 大模型 Key（可选；推荐免费 [Groq](https://console.groq.com/)）
 
 定时：每周一北京时间约 10:30。
 
@@ -25,8 +25,8 @@ npm run dry-run
 |------|------|------|
 | `FEISHU_WEBHOOK_URL` | 飞书 Webhook | 必填 |
 | `LLM_API_KEY` | OpenAI 兼容 API Key | 无则跳过分析 |
-| `LLM_BASE_URL` | API 地址 | DeepSeek |
-| `LLM_MODEL` | 模型名 | `deepseek-chat` |
+| `LLM_BASE_URL` | API 地址 | Groq 免费 |
+| `LLM_MODEL` | 模型名 | `llama-3.3-70b-versatile` |
 | `ANALYZE` | `0` 关闭分析 | 有 Key 则开启 |
 | `TOP_N` | 条数 | `10` |
 | `LANGUAGE` | 语言过滤 | 空 |
